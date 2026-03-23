@@ -45,7 +45,7 @@ scores_b = cross_val_score(model_b, X_raw, labels, cv=cv, scoring='accuracy')
 accuracy_b = np.mean(scores_b) * 100
 print(f"-> Model B Accuracy: {accuracy_b:.2f}%")
 
-#MODEL PERSISTENCE 
+#Exporting trained pipeline to csp_lda_active_model.pkl
 print("\nTraining final pipeline on full dataset before saving...")
 model_a.fit(X, labels) 
 

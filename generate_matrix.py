@@ -12,16 +12,17 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
-# 1. INGESTION (Active Phase)
+# Generate the confusion matrix for Model A (CSP + LDA)
+# Ingestion (Active Phase)
 dataset = BNCI2014_001()
 dataset.subject_list = [1]
 paradigm = MotorImagery(n_classes=2, events=['left_hand', 'right_hand'], fmin=8, fmax=32, tmin=0.5, tmax=2.5)
 X, labels, _ = paradigm.get_data(dataset=dataset, subjects=[1])
 
-# 2. TRAIN/TEST SPLIT
+# Train/ Test/ Split data
 X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.2, random_state=42, stratify=labels)
 
-# 3. TRAIN MODEL A
+# Train Model A
 model_a = Pipeline([
     ("csp", CSP(n_components=4, reg=None, log=True, norm_trace=False)),
     ("scaler", StandardScaler()),
@@ -29,7 +30,7 @@ model_a = Pipeline([
 ])
 model_a.fit(X_train, y_train)
 
-# 4. PREDICT & PLOT
+# Predict and plot
 y_pred = model_a.predict(X_test)
 cm = confusion_matrix(y_test, y_pred, labels=['left_hand', 'right_hand'])
 

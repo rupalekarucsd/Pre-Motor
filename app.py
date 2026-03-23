@@ -12,7 +12,8 @@ st.title(" Pre-Motor: Neural Decoding MVP")
 
 app_mode = "Historical Diagnostic Decoder"
 
-# Instantiate the BCI pipeline components: load the pre-trained CSP+LDA weights and initialize the MOABB dataset handler.
+# Initialize the BCI pipeline components
+# Load and cache the pre-trained CSP+LDA weights and initialize the MOABB dataset handler
 @st.cache_resource
 def setup_engine():
     model = joblib.load("csp_lda_active_model.pkl")
@@ -22,7 +23,7 @@ def setup_engine():
                             fmin=8, fmax=32, tmin=0.5, tmax=2.5)
     X, labels, _ = paradigm.get_data(dataset=dataset, subjects=[1])
     
-    # Precompute global success/failures for the benchmarking ledger
+    # Precompute global success/failures for all the trials
     all_preds = model.predict(X)
     success_idx = [i for i, (p, t) in enumerate(zip(all_preds, labels)) if p == t]
     failed_idx = [i for i, (p, t) in enumerate(zip(all_preds, labels)) if p != t]
@@ -31,14 +32,14 @@ def setup_engine():
 
 model, X, labels, success_idx, failed_idx = setup_engine()
 
-# Cache matrix indices to structurally isolate Left and Right Hand predictions algebraically.
+# Cache matrix indices to structurally isolate Left and Right hand predictions
 classes = model.classes_
 right_idx = np.where(classes == 'right_hand')[0][0]
 left_idx = np.where(classes == 'left_hand')[0][0]
 
-# Evaluate and render the exact historical performance of the pre-trained neural architecture over the test cohort.
+# Evaluate and render the exact historical performance of the pre-trained neural architecture over the test data
 if app_mode == "Historical Diagnostic Decoder":
-    # Initialize state variables to strictly synchronize the trial slider and the input box across re-renders.
+
     if 'search_num' not in st.session_state:
         st.session_state.search_num = 0
     if 'slider_sync' not in st.session_state:
@@ -55,7 +56,7 @@ if app_mode == "Historical Diagnostic Decoder":
         st.session_state.search_num = idx
         st.session_state.slider_sync = idx
 
-    # Construct the primary diagnostic control panel for temporal navigation and calculating ambient baseline hardware noise.
+    # Construct the primary diagnostic control panel for selecting the trials and calculating baseline noise
     st.markdown("### 🛠 Master Control Panel")
     ctrl_c1, ctrl_c2, ctrl_c3, ctrl_c4 = st.columns([1, 1, 2, 1.5])
 
@@ -92,7 +93,7 @@ if app_mode == "Historical Diagnostic Decoder":
         if compare_mode:
             compare_idx = st.slider("Select Trial to Compare", 0, len(X)-1, (st.session_state.slider_sync + 1) % len(X))
 
-    # Lock logical timeline to the properly synced state
+    # Lock data to the synced state of UI
     trial_idx = st.session_state.slider_sync
 
     st.divider()
@@ -107,7 +108,7 @@ if app_mode == "Historical Diagnostic Decoder":
     prob_left = probs[left_idx] * 100
     conf = max(prob_right, prob_left)
 
-    # Compare the predicted LDA classification against the absolute physiological ground truth.
+    # Compare the predicted LDA classification against the real results
     st.header("Neural Decoding Analysis")
     match = "✅ MATCH" if prediction == true_label else "❌ FAIL"
     color = "#2ca02c" if prediction == true_label else "#d62728"
@@ -148,7 +149,7 @@ if app_mode == "Historical Diagnostic Decoder":
             </div>
         """, unsafe_allow_html=True)
 
-    # Execute an analytical failure autopsy if the classifier misreads a signal, diagnosing specifically for weak Event-Related Desynchronization (ERD).
+    # To see whether the classifier misreads a signal, diagnosing specifically for weak Event-Related Desynchronization (ERD)
     if prediction != true_label:
         st.warning("⚠️ Misclassification Diagnostics", icon="⚠️")
         err_col1, err_col2 = st.columns(2)
@@ -192,7 +193,7 @@ if app_mode == "Historical Diagnostic Decoder":
             
         st.divider()
 
-    # Visualize underlying feature metrics: raw sensorimotor oscillatory waveforms alongside spatial log-variance distributions from the CSP.
+    # Visualize underlying feature metrics: raw sensorimotor oscillatory waveforms alongside spatial log-variance distributions from the CSP
     st.subheader("💡 Explainable AI Evidence: Raw Signals vs. Extracted Features")
 
     col1, col2 = st.columns(2)
@@ -244,7 +245,7 @@ if app_mode == "Historical Diagnostic Decoder":
             
         st.pyplot(fig2)
         
-    # Project the 8-32 Hz sensorimotor envelope across a spectral heatmap to physically validate structural energy drops during cognitive engagement.
+    # Project the 8-32 Hz sensorimotor data across a spectral heatmap to check energy drops
     st.divider()
     st.subheader("🔍 Time-Frequency Analysis (Spectrogram)")
 
@@ -274,7 +275,7 @@ if app_mode == "Historical Diagnostic Decoder":
     st.pyplot(fig_spec)
     st.caption("Spatial-spectral heatmap: visually highlights localized drops in energy in the 8-13Hz (Mu) and 12-30Hz (Beta) sensorimotor bands.")
 
-    # Tabulate cross-subject testing accuracy and log the individual predictive timeline per sub-trial.
+    # Tabulate cross-subject testing accuracy and log the individual accuracies across subjects 1-3
     st.divider()
     st.header("Global Architecture Validation")
 

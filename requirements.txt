@@ -1,0 +1,12 @@
+numpy
+matplotlib
+moabb
+mne
+joblib
+scikit-learn
+streamlit
+scipy
+pandas
+seaborn
+mne-bids
+pyriemann
